@@ -20,8 +20,7 @@ myPanel::myPanel(wxFrame* parent, const wxString filepath)
 		if (bmpFile->readMetaData()) {
 			resizeToImage();
 			bmpFile->readImageData();
-			image = *(bmpFile->pixelVector);
-			displayStatus = NORMAL;
+			image = *bmpFile->getPixelVector();
 		}
 	}
 	else {
@@ -57,7 +56,7 @@ void myPanel::drawImage(wxDC& dc)
 	wxPen pen = dc.GetPen();
 	for (int row = 0; row < maxHeight; row++) {
 		for (int col = 0; col < maxWidth; col++) {
-			pen.SetColour(getPixelColor((maxWidth * row) + col));
+			pen.SetColour(getPixelColor(row, col));
 			dc.SetPen(pen);
 			dc.DrawPoint(col, maxHeight - row - 1);
 		}
@@ -68,13 +67,22 @@ void myPanel::drawImage(wxDC& dc)
 
 // Load BMP pixel data directly to panel vector
 void myPanel::loadNormal() {
-	vector<wxColor>::iterator fileIndex = bmpFile->getPixelVector()->begin();
-	vector<wxColor>::iterator panelIndex = image.begin();
+	// Iterators for bmp file pixels
+	vector<vector<wxColor>>::iterator fileRow = bmpFile->getPixelVector()->begin();
+	vector<wxColor>::iterator fileCol = fileRow->begin();
 
-	while (fileIndex != bmpFile->getPixelVector()->end()) {
-		wxColor temp = *fileIndex; 
-		*panelIndex = temp;
-		fileIndex++, panelIndex++;
+	// Iterators for panel image pixels
+	vector<vector<wxColor>>::iterator panelRow = image.begin();
+	vector<wxColor>::iterator panelCol = panelRow->begin();
+
+	// Copy from bmp file to panel image
+	while (fileRow != bmpFile->getPixelVector()->end()) {
+		while (fileCol != fileRow->end()) {
+			wxColor temp = *fileCol;
+			*panelCol = temp;
+			fileCol++, panelCol++;
+		}
+		fileRow++, panelRow++;
 	}
 }
 
@@ -193,12 +201,11 @@ void myPanel::HSLtoRGB(wxColor& rgb, double H, double S, double L)
 }
 
 // Return pixel vector RGB element at index
-wxColor myPanel::getPixelColor(const int index) const {
-	if (index >= maxWidth * maxHeight) {
+wxColor myPanel::getPixelColor(const int row, const int col) const {
+	if (row >= maxHeight || col >= maxWidth) {
 		return wxColor("Black");
 	}
-	return image.at(index);
-
+	return image[row][col];
 }
 
 myBMPFile* myPanel::getFile()

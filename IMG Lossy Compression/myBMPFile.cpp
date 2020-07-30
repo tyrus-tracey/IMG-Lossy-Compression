@@ -22,7 +22,7 @@ wxSize myBMPFile::getImageSize()
 }
 
 
-vector<wxColor>* myBMPFile::getPixelVector() const
+vector<vector<wxColor>>* myBMPFile::getPixelVector() const
 {
     return pixelVector;
 }
@@ -54,19 +54,22 @@ void myBMPFile::readImageData()
     uint8_t Blue;
     unsigned int numberOfPixels = imageWidth * imageHeight;
     unsigned int bytesPerPixel = bitsPerPixel / 8;
-    pixelVector = new vector<wxColor>(numberOfPixels);
-    vector<wxColor>::iterator index = pixelVector->begin();
-    int columnCount = 1; // determines when to apply byte padding
+    vector<wxColor> colVector(imageWidth);
+    pixelVector = new vector<vector<wxColor>>(imageHeight, colVector);
+    vector<vector<wxColor>>::iterator row = pixelVector->begin();
+    vector<wxColor>::iterator col = row->begin();
 
-    while (index != pixelVector->end()) {
-        Read(&Blue, 1);
-        Read(&Green, 1);
-        Read(&Red, 1);
-        if (columnCount % imageWidth == 0) { // end of pixel row
-            Read(paddingBuffer, bytePadding);
+    while (row != pixelVector->end()) {
+        col = row->begin();
+        while (col != row->end()) {
+            Read(&Blue, 1);
+            Read(&Green, 1);
+            Read(&Red, 1);
+            *col = wxColor(Red, Green, Blue);
+            col++;
         }
-        *index = wxColor(Red, Green, Blue);
-        index++, columnCount++;
+        Read(paddingBuffer, bytePadding);
+        row++;
     }
     delete[] paddingBuffer;
     Close();

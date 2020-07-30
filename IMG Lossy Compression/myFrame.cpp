@@ -2,7 +2,6 @@
 #include <intrin.h>
 
 wxBEGIN_EVENT_TABLE(myFrame, wxFrame)
-EVT_KEY_DOWN(myFrame::OnKeyboardPress) // Bind a keypress event to my event handler 
 END_EVENT_TABLE()
 
 // Using base class constructor, create a frame of a specified size in the app.
@@ -10,7 +9,6 @@ myFrame::myFrame(wxSize& appDimensions)
 	: wxFrame(NULL, wxID_ANY, "BMP Image Program", wxPoint(0, 0), appDimensions)
 {
 	createMenuBar();
-	Bind(wxEVT_KEY_DOWN, &myFrame::OnKeyboardPress, this, ID_KeyPress);
 	Show(true); // Display this frame
 }
 
@@ -70,11 +68,4 @@ void myFrame::OnOpen(wxCommandEvent& event)
 
 	Refresh(); //Redraw the frame
 	Update(); //Force painting of BMP immediately
-}
-
-void myFrame::OnKeyboardPress(wxKeyEvent& event)
-{
-	wxStaticText loadIndicator(this, wxID_ANY, "---");
-	Refresh();
-	event.Skip();
 }

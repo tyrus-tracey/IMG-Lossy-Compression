@@ -11,10 +11,10 @@ public:
 	myBMPFile(const wxString filepath);
 	~myBMPFile();
 	wxSize getImageSize();
-	vector<wxColor>* getPixelVector() const;
+	vector<vector<wxColor>>* getPixelVector() const;
 	bool readMetaData();
 	void readImageData();
-	vector<wxColor>* pixelVector;
+	vector<vector<wxColor>>* pixelVector;
 
 private:
 	bool readFileHeader();

@@ -23,14 +23,12 @@ private:
 	void loadNormal();
 	void RGBtoHSL(wxColor rgb, double& H, double& S, double& L);
 	void HSLtoRGB(wxColor& rgb, double H, double S, double L);
-	wxColor getPixelColor(const int index) const;
+	wxColor getPixelColor(const int row, const int col) const;
 	myBMPFile* bmpFile;
-	vector<wxColor> image;
+	vector<vector<wxColor>> image;
 	wxSize maxSize;
 	int	maxHeight;
 	int maxWidth;
-	const enum display{ NORMAL = 1, GRAYSCALE = 2, DARK = 3, VIVID = 4 };
-	int displayStatus;
 
 	DECLARE_EVENT_TABLE();
 };

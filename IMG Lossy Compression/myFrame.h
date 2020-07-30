@@ -24,7 +24,7 @@ private:
 
 	myPanel* panel = NULL;
 	wxBoxSizer* frameSizer = NULL;
-	enum { ID_Open = 1 , ID_KeyPress = 2};
+	enum { ID_Open = 1};
 
 	DECLARE_EVENT_TABLE();
 };
