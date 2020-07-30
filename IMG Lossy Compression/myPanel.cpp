@@ -65,31 +65,6 @@ void myPanel::drawImage(wxDC& dc)
 	return;
 }
 
-// Load pixel vector with manipulated BMP pixel data 
-void myPanel::loadNext()
-{
-	switch (displayStatus) {
-		case NORMAL:
-			loadGrayscale();
-			displayStatus = GRAYSCALE;
-			break;
-		case GRAYSCALE:
-			loadDarker();
-			displayStatus = DARK;
-			break;
-		case DARK:
-			loadVivid();
-			displayStatus = VIVID;
-			break;
-		case VIVID:
-			loadNormal();
-			displayStatus = NORMAL;
-			break;
-		default:
-			displayStatus = NORMAL;
-			break;
-	}
-}
 
 // Load BMP pixel data directly to panel vector
 void myPanel::loadNormal() {
@@ -98,60 +73,6 @@ void myPanel::loadNormal() {
 
 	while (fileIndex != bmpFile->getPixelVector()->end()) {
 		wxColor temp = *fileIndex; 
-		*panelIndex = temp;
-		fileIndex++, panelIndex++;
-	}
-}
-
-// Load BMP pixel RGB, calculate Luma (RGB -> YUV conversion) then apply Luma to panel RGB value
-void myPanel::loadGrayscale()
-{
-	vector<wxColor>::iterator fileIndex = bmpFile->getPixelVector()->begin();
-	vector<wxColor>::iterator panelIndex = image.begin();
-
-	while (fileIndex != bmpFile->getPixelVector()->end()) {
-		wxColor temp = *fileIndex;
-		int Luma = std::round((temp.Red() * 0.299) + (temp.Green() * 0.587) + (temp.Blue() * 0.114));
-		*panelIndex = wxColor(Luma, Luma, Luma);
-		fileIndex++, panelIndex++;
-	}
-}
-
-// Load BMP pixel RGB, convert to HSL, divide L by half, then convert back to RGB and send to panel
-void myPanel::loadDarker()
-{
-	vector<wxColor>::iterator fileIndex = bmpFile->getPixelVector()->begin();
-	vector<wxColor>::iterator panelIndex = image.begin();
-	double H;
-	double S;
-	double L;
-
-	while (fileIndex != bmpFile->getPixelVector()->end()) {
-		wxColor temp = *fileIndex;
-		RGBtoHSL(temp, H, S, L);
-		L *= 0.5;
-		if (S > 1) { S = 1; }
-		HSLtoRGB(temp, H, S, L);
-		*panelIndex = temp;
-		fileIndex++, panelIndex++;
-	}
-}
-
-// Load BMP pixel RGB, convert to HSL, double saturation, then convert back to RGB and send to panel
-void myPanel::loadVivid()
-{
-	vector<wxColor>::iterator fileIndex = bmpFile->getPixelVector()->begin();
-	vector<wxColor>::iterator panelIndex = image.begin();
-	double H;
-	double S;
-	double L;
-
-	while (fileIndex != bmpFile->getPixelVector()->end()) {
-		wxColor temp = *fileIndex;
-		RGBtoHSL(temp, H, S, L);
-		S *= 2;
-		if (S > 1) { S = 1; }
-		HSLtoRGB(temp, H, S, L);
 		*panelIndex = temp;
 		fileIndex++, panelIndex++;
 	}

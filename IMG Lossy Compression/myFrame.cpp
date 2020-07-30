@@ -75,7 +75,6 @@ void myFrame::OnOpen(wxCommandEvent& event)
 void myFrame::OnKeyboardPress(wxKeyEvent& event)
 {
 	wxStaticText loadIndicator(this, wxID_ANY, "---");
-	panel->loadNext();
 	Refresh();
 	event.Skip();
 }

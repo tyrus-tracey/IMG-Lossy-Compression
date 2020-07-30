@@ -16,15 +16,11 @@ public:
 	void resizeToImage();
 	void paintEvent(wxPaintEvent& event);
 	void drawImage(wxDC& dc);
-	void loadNext();
 	
 	myBMPFile* getFile();
 
 private:
 	void loadNormal();
-	void loadGrayscale();
-	void loadDarker();
-	void loadVivid();
 	void RGBtoHSL(wxColor rgb, double& H, double& S, double& L);
 	void HSLtoRGB(wxColor& rgb, double H, double S, double L);
 	wxColor getPixelColor(const int index) const;
