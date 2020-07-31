@@ -17,15 +17,14 @@ public:
 	void paintEvent(wxPaintEvent& event);
 	void drawImage(wxDC& dc);
 	
-	myBMPFile* getFile();
 
 private:
 	void loadNormal();
 	void RGBtoHSL(wxColor rgb, double& H, double& S, double& L);
 	void HSLtoRGB(wxColor& rgb, double H, double S, double L);
 	wxColor getPixelColor(const int row, const int col) const;
-	myBMPFile* bmpFile;
-	myIMGFile* imgFile;
+	myBMPFile bmpFile;
+	myIMGFile imgFile;
 
 	vector<vector<wxColor>> image;
 	wxSize maxSize;

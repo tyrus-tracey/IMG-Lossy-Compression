@@ -23,7 +23,6 @@ public:
 private:
 	void downsampleColor();
 
-	
 	wxSize imageSize;
 	vector<vector<colSpace>> data;
 	vector<vector<colSpace>>::iterator row;

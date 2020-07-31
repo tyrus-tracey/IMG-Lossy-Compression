@@ -1,5 +1,16 @@
 #include "myBMPFile.h"
 
+myBMPFile::myBMPFile()
+{
+    fileSize = 0;
+    pixelOffset = 0;
+    headerSize = 0;
+    imageWidth = 0;
+    imageHeight = 0;
+    numberOfPlanes = 0;
+    bitsPerPixel = 0;
+    compressionFactor = 0;
+}
 myBMPFile::myBMPFile(const wxString filepath)
     : wxFFile(filepath, "rb") {
     fileSize = 0;

@@ -8,6 +8,7 @@ using namespace std;
 class myBMPFile : public wxFFile
 {
 public:
+	myBMPFile();
 	myBMPFile(const wxString filepath);
 	~myBMPFile();
 	wxSize getImageSize();

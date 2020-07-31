@@ -7,22 +7,17 @@ END_EVENT_TABLE()
 
 //Using the base class constructor, create a panel and an associated myBMPFile as a child.
 myPanel::myPanel(wxFrame* parent, const wxString filepath)
-	: wxPanel(parent, wxID_ANY, wxPoint(0, 0), parent->GetSize())
+	: wxPanel(parent, wxID_ANY, wxPoint(0, 0), parent->GetSize()), bmpFile(filepath)
 {
-	bmpFile = new myBMPFile(filepath);
-	if (bmpFile == NULL) {
-		wxMessageBox("Error: Could not find associated BMP file.");
-	}
 	SetBackgroundStyle(wxBG_STYLE_PAINT);
-
 	// Read file data to panel members
-	if (bmpFile->IsOpened()) { 
-		if (bmpFile->readMetaData()) {
+	if (bmpFile.IsOpened()) { 
+		if (bmpFile.readMetaData()) {
 			resizeToImage();
-			bmpFile->readImageData();
-			image = *bmpFile->getPixelVector();
+			bmpFile.readImageData();
+			image = *bmpFile.getPixelVector();
 		}
-		imgFile = new myIMGFile(*bmpFile);
+		imgFile = myIMGFile(bmpFile);
 	}
 	else {
 		wxMessageBox("Error: Selected file not open for reading.");
@@ -31,14 +26,13 @@ myPanel::myPanel(wxFrame* parent, const wxString filepath)
 
 myPanel::~myPanel()
 {
-	delete bmpFile; //required to delete manually allocated elements of myBMPFile
 }
 
 // Resizes panel to the size of the BMP file
 void myPanel::resizeToImage()
 {
-	wxSize test = bmpFile->getImageSize();
-	SetSize(bmpFile->getImageSize());
+	wxSize test = bmpFile.getImageSize();
+	SetSize(bmpFile.getImageSize());
 	maxWidth = GetSize().x;
 	maxHeight = GetSize().y;
 }
@@ -69,7 +63,7 @@ void myPanel::drawImage(wxDC& dc)
 // Load BMP pixel data directly to panel vector
 void myPanel::loadNormal() {
 	// Iterators for bmp file pixels
-	vector<vector<wxColor>>::iterator fileRow = bmpFile->getPixelVector()->begin();
+	vector<vector<wxColor>>::iterator fileRow = bmpFile.getPixelVector()->begin();
 	vector<wxColor>::iterator fileCol = fileRow->begin();
 
 	// Iterators for panel image pixels
@@ -77,7 +71,7 @@ void myPanel::loadNormal() {
 	vector<wxColor>::iterator panelCol = panelRow->begin();
 
 	// Copy from bmp file to panel image
-	while (fileRow != bmpFile->getPixelVector()->end()) {
+	while (fileRow != bmpFile.getPixelVector()->end()) {
 		while (fileCol != fileRow->end()) {
 			wxColor temp = *fileCol;
 			*panelCol = temp;
@@ -207,9 +201,4 @@ wxColor myPanel::getPixelColor(const int row, const int col) const {
 		return wxColor("Black");
 	}
 	return image[row][col];
-}
-
-myBMPFile* myPanel::getFile()
-{
-	return bmpFile;
 }
