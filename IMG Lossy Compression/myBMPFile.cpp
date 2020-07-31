@@ -52,12 +52,10 @@ void myBMPFile::readImageData()
     uint8_t Red;
     uint8_t Green;
     uint8_t Blue;
-    unsigned int numberOfPixels = imageWidth * imageHeight;
-    unsigned int bytesPerPixel = bitsPerPixel / 8;
     vector<wxColor> colVector(imageWidth);
     pixelVector = new vector<vector<wxColor>>(imageHeight, colVector);
-    vector<vector<wxColor>>::iterator row = pixelVector->begin();
-    vector<wxColor>::iterator col = row->begin();
+    row = pixelVector->begin();
+    col = row->begin();
 
     while (row != pixelVector->end()) {
         col = row->begin();

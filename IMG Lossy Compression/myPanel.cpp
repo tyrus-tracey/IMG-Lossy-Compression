@@ -22,6 +22,7 @@ myPanel::myPanel(wxFrame* parent, const wxString filepath)
 			bmpFile->readImageData();
 			image = *bmpFile->getPixelVector();
 		}
+		imgFile = new myIMGFile(*bmpFile);
 	}
 	else {
 		wxMessageBox("Error: Selected file not open for reading.");

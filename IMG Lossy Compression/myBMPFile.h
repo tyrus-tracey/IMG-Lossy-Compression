@@ -15,6 +15,8 @@ public:
 	bool readMetaData();
 	void readImageData();
 	vector<vector<wxColor>>* pixelVector;
+	vector<vector<wxColor>>::iterator row;
+	vector<wxColor>::iterator col;
 
 private:
 	bool readFileHeader();

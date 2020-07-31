@@ -3,7 +3,7 @@
 #include "wx/dcbuffer.h"
 #include "wx/panel.h"
 #include "myBMPFile.h"
-
+#include "myIMGFile.h"
 /*
 	Panels are windows within frames that allow for drawing operations.
 */
@@ -25,6 +25,8 @@ private:
 	void HSLtoRGB(wxColor& rgb, double H, double S, double L);
 	wxColor getPixelColor(const int row, const int col) const;
 	myBMPFile* bmpFile;
+	myIMGFile* imgFile;
+
 	vector<vector<wxColor>> image;
 	wxSize maxSize;
 	int	maxHeight;
