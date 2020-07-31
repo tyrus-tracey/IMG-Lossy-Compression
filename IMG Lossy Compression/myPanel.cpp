@@ -61,7 +61,7 @@ void myPanel::drawImage(wxDC& dc)
 
 
 // Load BMP pixel data directly to panel vector
-void myPanel::loadNormal() {
+void myPanel::loadBMP() {
 	// Iterators for bmp file pixels
 	vector<vector<wxColor>>::iterator fileRow = bmpFile.getPixelVector()->begin();
 	vector<wxColor>::iterator fileCol = fileRow->begin();

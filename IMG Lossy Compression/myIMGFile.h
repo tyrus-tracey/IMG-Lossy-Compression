@@ -21,8 +21,10 @@ public:
 	myIMGFile(myBMPFile& bmp);
 
 private:
+	void readBMP(myBMPFile& bmp);
 	void downsampleColor();
-
+	void quantizePixels();
+	void flattenExtremes();
 	wxSize imageSize;
 	vector<vector<colSpace>> data;
 	vector<vector<colSpace>>::iterator row;

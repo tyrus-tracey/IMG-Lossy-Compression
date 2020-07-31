@@ -22,10 +22,18 @@ myIMGFile::myIMGFile()
 myIMGFile::myIMGFile(myBMPFile& bmp)
 	: imageSize(bmp.getImageSize())
 {
+	readBMP(bmp);
+	downsampleColor();
+	quantizePixels();
+	flattenExtremes();
+}
+
+void myIMGFile::readBMP(myBMPFile& bmp)
+{
 	vector<colSpace> width(imageSize.GetX());
 	data = vector<vector<colSpace>>(imageSize.GetY(), width);
 
-	row		= data.begin();
+	row = data.begin();
 	bmp.row = bmp.getPixelVector()->begin();
 	while (row != data.end()) {
 		col = row->begin();
@@ -36,8 +44,6 @@ myIMGFile::myIMGFile(myBMPFile& bmp)
 		}
 		row++, bmp.row++;
 	}
-
-	downsampleColor();
 }
 
 // Group CoCg values into averaged blocks of 4, then set block CoCg to averaged value
@@ -73,3 +79,51 @@ void myIMGFile::downsampleColor()
 	}
 }
 
+// Quantize YCoCg values to even numbers
+void myIMGFile::quantizePixels()
+{
+	row = data.begin();
+	while (row != data.end()) {
+		col = row->begin();
+		while (col != row->end()) {
+			col->Y	-= col->Y % 2;
+			col->Co -= col->Co % 2;
+			col->Cg -= col->Cg % 2;
+			col++;
+		}
+		row++;
+	}
+}
+
+// Near-max values get pushed to max values. (harder to discern)
+void myIMGFile::flattenExtremes()
+{
+	row = data.begin();
+	while (row != data.end()) {
+		col = row->begin();
+		while (col != row->end()) {
+			if (col->Y < 5) {
+				col->Y = 5;
+			}
+			else if (col->Y > 250) {
+				col->Y = 255;
+			}
+
+			if (col->Co < 5) {
+				col->Co = 5;
+			}
+			else if (col->Co > 250) {
+				col->Co = 255;
+			}
+
+			if (col->Cg < 5) {
+				col->Cg = 5;
+			}
+			else if (col->Cg > 250) {
+				col->Cg = 255;
+			}
+			col++;
+		}
+		row++;
+	}
+}

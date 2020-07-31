@@ -19,7 +19,7 @@ public:
 	
 
 private:
-	void loadNormal();
+	void loadBMP();
 	void RGBtoHSL(wxColor rgb, double& H, double& S, double& L);
 	void HSLtoRGB(wxColor& rgb, double H, double S, double L);
 	wxColor getPixelColor(const int row, const int col) const;
