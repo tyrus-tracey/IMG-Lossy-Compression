@@ -32,6 +32,11 @@ wxSize myBMPFile::getImageSize()
     return wxSize(imageWidth, imageHeight);
 }
 
+int myBMPFile::getPixelCount()
+{
+    return imageWidth * imageHeight;
+}
+
 
 vector<vector<wxColor>>* myBMPFile::getPixelVector() const
 {

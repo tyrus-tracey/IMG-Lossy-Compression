@@ -12,6 +12,7 @@ public:
 	myBMPFile(const wxString filepath);
 	~myBMPFile();
 	wxSize getImageSize();
+	int getPixelCount();
 	vector<vector<wxColor>>* getPixelVector() const;
 	bool readMetaData();
 	void readImageData();

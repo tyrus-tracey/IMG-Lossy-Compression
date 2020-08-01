@@ -25,8 +25,13 @@ private:
 	void downsampleColor();
 	void quantizePixels();
 	void flattenExtremes();
+	void convertToStrings();
+	void encode();
 	wxSize imageSize;
 	vector<vector<colSpace>> data;
+	vector<string> dataY;
+	vector<string> dataCo;
+	vector<string> dataCg;
 	vector<vector<colSpace>>::iterator row;
 	vector<colSpace>::iterator col;
 };

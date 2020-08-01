@@ -22,10 +22,14 @@ myIMGFile::myIMGFile()
 myIMGFile::myIMGFile(myBMPFile& bmp)
 	: imageSize(bmp.getImageSize())
 {
+	dataY  = vector<string>(bmp.getPixelCount());
+	dataCo = vector<string>(bmp.getPixelCount());
+	dataCg = vector<string>(bmp.getPixelCount());
 	readBMP(bmp);
 	downsampleColor();
 	quantizePixels();
 	flattenExtremes();
+	convertToStrings();
 }
 
 void myIMGFile::readBMP(myBMPFile& bmp)
@@ -126,4 +130,26 @@ void myIMGFile::flattenExtremes()
 		}
 		row++;
 	}
+}
+
+void myIMGFile::convertToStrings()
+{
+	int index = 0;
+	row = data.begin();
+	while (row != data.end()) {
+		col = row->begin();
+		while (col != row->end()) {
+			dataY[index] = to_string(col->Y);
+			dataCo[index] = to_string(col->Co);
+			dataCg[index] = to_string(col->Cg);
+			index++, col++;
+		}
+		row++;
+	}
+}
+
+// Huffman-based encoding of pixel values
+void myIMGFile::encode()
+{
+
 }
