@@ -29,6 +29,7 @@ private:
 	void convertToStrings();
 	void encode();
 	wxSize imageSize;
+	int downsampleCount;
 	vector<vector<colSpace>> data;
 	vector<string> dataY;
 	vector<string> dataCo;

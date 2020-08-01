@@ -14,7 +14,7 @@ colSpace::colSpace(wxColor triColor)
 }
 
 myIMGFile::myIMGFile()
-	:imageSize(wxSize(0,0))
+	:imageSize(wxSize(0,0)), downsampleCount(0)
 {
 }
 
@@ -53,6 +53,7 @@ void myIMGFile::readBMP(myBMPFile& bmp)
 // Group CoCg values into averaged blocks of 4, then set block CoCg to averaged value
 void myIMGFile::downsampleColor()
 {
+	int count = 0;
 	colSpace avg;
 	int x1;
 	int y1;
@@ -79,8 +80,10 @@ void myIMGFile::downsampleColor()
 			data[y2][x1].Cg = avg.Cg;
 			data[y1][x2].Cg = avg.Cg;
 			data[y2][x2].Cg = avg.Cg;
+			count++;
 		}
 	}
+	downsampleCount = count;
 }
 
 // Quantize YCoCg values to even numbers
@@ -136,15 +139,22 @@ void myIMGFile::convertToStrings()
 {
 	int index = 0;
 	row = data.begin();
-	while (row != data.end()) {
+	while (row != data.end()) { // Convert grayscale values
 		col = row->begin();
 		while (col != row->end()) {
 			dataY[index] = to_string(col->Y);
-			dataCo[index] = to_string(col->Co);
-			dataCg[index] = to_string(col->Cg);
-			index++, col++;
+			col++;
 		}
 		row++;
+	}
+
+	index = 0;
+	for (int x1 = 0; x1 < imageSize.GetWidth() - 1; x1 += 2) {
+		for (int y1 = 0; y1 < imageSize.GetHeight() - 1; y1 += 2) {
+			dataCo[index] = data[y1][x1].Co;
+			dataCg[index] = data[y1][x1].Cg;
+			index++;
+		}
 	}
 }
 
@@ -179,13 +189,13 @@ void myIMGFile::writeToFile(const wxString filepath)
 	}
 
 	//write Co values
-	for (int i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
+	for (int i = 0; i < downsampleCount; i++) {
 		file.Write(dataCo[i]);
 
 	}
 
 	//write Cg values
-	for (int i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
+	for (int i = 0; i < downsampleCount; i++) {
 		file.Write(dataCg[i]);
 	}
 
