@@ -19,6 +19,7 @@ class myIMGFile
 public:
 	myIMGFile();
 	myIMGFile(myBMPFile& bmp);
+	void writeToFile(const wxString filepath);
 
 private:
 	void readBMP(myBMPFile& bmp);

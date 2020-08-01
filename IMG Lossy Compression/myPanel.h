@@ -16,7 +16,7 @@ public:
 	void resizeToImage();
 	void paintEvent(wxPaintEvent& event);
 	void drawImage(wxDC& dc);
-	
+	void writeIMG(wxString filepath);
 
 private:
 	void loadBMP();

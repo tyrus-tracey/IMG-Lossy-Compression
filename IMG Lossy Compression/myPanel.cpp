@@ -59,6 +59,11 @@ void myPanel::drawImage(wxDC& dc)
 	return;
 }
 
+void myPanel::writeIMG(wxString filepath)
+{
+	imgFile.writeToFile(filepath);
+}
+
 
 // Load BMP pixel data directly to panel vector
 void myPanel::loadBMP() {

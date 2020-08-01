@@ -153,3 +153,41 @@ void myIMGFile::encode()
 {
 
 }
+
+void myIMGFile::writeToFile(const wxString filepath)
+{
+	wxFFile file(filepath, "wb");
+	int intBuff;
+	char charBuff[4];
+	charBuff[0] = 'I';
+	charBuff[1] = 'M';
+	charBuff[2] = 'G';
+	charBuff[3] = '\0';
+
+	//write header tag
+	file.Write(charBuff, sizeof(charBuff));
+	//image width
+	intBuff = imageSize.GetWidth();
+	file.Write(&intBuff, sizeof(int));
+	//image height
+	intBuff = imageSize.GetHeight();
+	file.Write(&intBuff, sizeof(int));
+
+	//write Y values;
+	for (int i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
+		file.Write(dataY[i]);
+	}
+
+	//write Co values
+	for (int i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
+		file.Write(dataCo[i]);
+
+	}
+
+	//write Cg values
+	for (int i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
+		file.Write(dataCg[i]);
+	}
+
+	file.Close();
+}

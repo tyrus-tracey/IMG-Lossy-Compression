@@ -1,4 +1,5 @@
 #include "myFrame.h"
+#include "wx/filename.h"
 #include <intrin.h>
 
 wxBEGIN_EVENT_TABLE(myFrame, wxFrame)
@@ -62,9 +63,11 @@ void myFrame::OnOpen(wxCommandEvent& event)
 		return;
 	}
 	// Create a new panel with given BMP file with the frame as the parent
-	panel = new myPanel(this, openDialog.GetPath()); 
+	wxFileName file = openDialog.GetPath();
+	panel = new myPanel(this, file.GetFullPath()); 
 
 	SetClientSize(panel->GetSize());
+	panel->writeIMG(file.GetPathWithSep() + wxString("TEST.IMG")); //ensure file is open?
 
 	Refresh(); //Redraw the frame
 	Update(); //Force painting of BMP immediately
