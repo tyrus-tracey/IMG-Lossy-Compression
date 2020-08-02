@@ -14,22 +14,71 @@ colSpace::colSpace(wxColor triColor)
 }
 
 myIMGFile::myIMGFile()
-	:imageSize(wxSize(0,0)), downsampleCount(0)
+	: imageSize(wxSize(0,0)), downsampleCount(0), data(vector<vector<colSpace>>(0)), dataY(0), dataCo(0), dataCg(0)
 {
+}
+
+myIMGFile::myIMGFile(const wxString filepath)
+	: imageSize(wxSize(0, 0)), downsampleCount(0), data(vector<vector<colSpace>>(0)), dataY(0), dataCo(0), dataCg(0)
+{
+	readFromFile(filepath);
+	reconstructPixels();
 }
 
 // Copy pixel data to .IMG file, converting to YCoCg in the process
 myIMGFile::myIMGFile(myBMPFile& bmp)
 	: imageSize(bmp.getImageSize())
 {
-	dataY  = vector<string>(bmp.getPixelCount());
-	dataCo = vector<string>(bmp.getPixelCount());
-	dataCg = vector<string>(bmp.getPixelCount());
+	dataY  = vector<int>(bmp.getPixelCount());
+	dataCo = vector<int>(bmp.getPixelCount());
+	dataCg = vector<int>(bmp.getPixelCount());
 	readBMP(bmp);
 	downsampleColor();
 	quantizePixels();
 	flattenExtremes();
 	convertToStrings();
+}
+
+void myIMGFile::readFromFile(const wxString filepath)
+{
+	char charBuff[4];
+	int intBuff;
+	wxFFile file(filepath, "rb");
+	// Read header tag
+	file.Read(charBuff, 4);
+	if (strcmp(charBuff, "IMG")) {
+		wxMessageBox("Error: Selected file is not IMG format.");
+		return;
+	}
+	// Read image dimensions
+	file.Read(&intBuff, sizeof(int));
+	imageSize.SetWidth(intBuff);
+	file.Read(&intBuff, sizeof(int));
+	imageSize.SetHeight(intBuff);
+	// Read downsample size
+	file.Read(&intBuff, sizeof(int));
+	downsampleCount = intBuff;
+
+	dataY.resize(imageSize.GetWidth() * imageSize.GetHeight());
+	dataCo.resize(downsampleCount);
+	dataCg.resize(downsampleCount);
+
+	for (int i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
+		file.Read(&intBuff, sizeof(int));
+		dataY[i] = intBuff;
+	}
+
+	for (int i = 0; i < downsampleCount; i++) {
+		file.Read(&intBuff, sizeof(int));
+		dataCo[i] = intBuff;
+	}
+
+	for (int i = 0; i < downsampleCount; i++) {
+		file.Read(&intBuff, sizeof(int));
+		dataCg[i] = intBuff;
+	}
+
+	file.Close();
 }
 
 void myIMGFile::readBMP(myBMPFile& bmp)
@@ -142,8 +191,8 @@ void myIMGFile::convertToStrings()
 	while (row != data.end()) { // Convert grayscale values
 		col = row->begin();
 		while (col != row->end()) {
-			dataY[index] = to_string(col->Y);
-			col++;
+			dataY[index] = col->Y;
+			index++, col++;
 		}
 		row++;
 	}
@@ -156,12 +205,53 @@ void myIMGFile::convertToStrings()
 			index++;
 		}
 	}
+	dataCo.resize(index);
+	dataCg.resize(index);
 }
 
 // Huffman-based encoding of pixel values
 void myIMGFile::encode()
 {
 
+}
+
+void myIMGFile::decode()
+{
+}
+
+void myIMGFile::reconstructPixels()
+{
+	int index = 0;
+	vector<colSpace> colWidth(imageSize.GetWidth());
+	data = vector<vector<colSpace>>(imageSize.GetHeight(), colWidth);
+
+	row = data.begin();
+	// Write Y values to colSpace matrix
+	while (row != data.end()) {
+		col = row->begin();
+		while (col != row->end()) {
+			col->Y	= dataY[index];
+			col++, index++;
+		}
+		row++;
+	}
+	
+	index = 0;
+	for (int x1 = 0; x1 < imageSize.GetWidth() - 1; x1 += 2) {
+		int x2 = x1 + 1;
+		for (int y1 = 0; y1 < imageSize.GetHeight() - 1; y1 += 2) {
+			int y2 = y1 + 1;
+			data[y1][x1].Co = dataCo[index];
+			data[y2][x1].Co = dataCo[index];
+			data[y2][x2].Co = dataCo[index];
+			data[y1][x2].Co = dataCo[index];
+							  
+			data[y1][x1].Cg = dataCg[index];
+			data[y2][x1].Cg = dataCg[index];
+			data[y1][x2].Cg = dataCg[index];
+			data[y2][x2].Cg = dataCg[index];
+		}
+	}
 }
 
 void myIMGFile::writeToFile(const wxString filepath)
@@ -182,22 +272,34 @@ void myIMGFile::writeToFile(const wxString filepath)
 	//image height
 	intBuff = imageSize.GetHeight();
 	file.Write(&intBuff, sizeof(int));
+	//downsample size
+	intBuff = downsampleCount;
+	file.Write(&intBuff, sizeof(int));
 
-	//write Y values;
+	//pixel data
 	for (int i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
-		file.Write(dataY[i]);
+		intBuff = dataY[i];
+		file.Write(&intBuff, sizeof(int));
 	}
 
-	//write Co values
 	for (int i = 0; i < downsampleCount; i++) {
-		file.Write(dataCo[i]);
-
+		intBuff = dataCo[i];
+		file.Write(&intBuff, sizeof(int));
 	}
 
-	//write Cg values
 	for (int i = 0; i < downsampleCount; i++) {
-		file.Write(dataCg[i]);
+		intBuff = dataCg[i];
+		file.Write(&intBuff, sizeof(int));
 	}
-
 	file.Close();
+}
+
+wxSize myIMGFile::getSize() const
+{
+	return imageSize;
+}
+
+const vector<vector<colSpace>>& myIMGFile::getPixelVector()
+{
+	return data;
 }

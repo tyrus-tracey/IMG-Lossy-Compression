@@ -2,6 +2,7 @@
 #include "wx/wx.h"
 #include "wx/dcbuffer.h"
 #include "wx/panel.h"
+#include "wx/filename.h"
 #include "myBMPFile.h"
 #include "myIMGFile.h"
 /*
@@ -11,7 +12,7 @@
 class myPanel : public wxPanel
 {
 public:
-	myPanel(wxFrame* parent, const wxString filepath);
+	myPanel(wxFrame* parent, const wxFileName filepath);
 	~myPanel();
 	void resizeToImage();
 	void paintEvent(wxPaintEvent& event);
@@ -20,8 +21,8 @@ public:
 
 private:
 	void loadBMP();
-	void RGBtoHSL(wxColor rgb, double& H, double& S, double& L);
-	void HSLtoRGB(wxColor& rgb, double H, double S, double L);
+	void loadIMG();
+	wxColor YCoCgtoRGB(colSpace yCoCg);
 	wxColor getPixelColor(const int row, const int col) const;
 	myBMPFile bmpFile;
 	myIMGFile imgFile;

@@ -6,22 +6,31 @@ EVT_PAINT(myPanel::paintEvent)
 END_EVENT_TABLE()
 
 //Using the base class constructor, create a panel and an associated myBMPFile as a child.
-myPanel::myPanel(wxFrame* parent, const wxString filepath)
-	: wxPanel(parent, wxID_ANY, wxPoint(0, 0), parent->GetSize()), bmpFile(filepath)
+myPanel::myPanel(wxFrame* parent, const wxFileName filepath)
+	: wxPanel(parent, wxID_ANY, wxPoint(0, 0), parent->GetSize()), bmpFile(filepath.GetFullPath()), maxHeight(0), maxWidth(0)
 {
 	SetBackgroundStyle(wxBG_STYLE_PAINT);
 	// Read file data to panel members
-	if (bmpFile.IsOpened()) { 
-		if (bmpFile.readMetaData()) {
-			resizeToImage();
-			bmpFile.readImageData();
-			image = *bmpFile.getPixelVector();
+	if (filepath.GetExt() == "bmp") {
+		if (bmpFile.IsOpened()) {
+			if (bmpFile.readMetaData()) {
+				resizeToImage();
+				bmpFile.readImageData();
+				image = *bmpFile.getPixelVector();
+			}
+			imgFile = myIMGFile(bmpFile);
+			writeIMG(filepath.GetPathWithSep() + wxString("TEST.IMG"));
 		}
-		imgFile = myIMGFile(bmpFile);
+		else {
+			wxMessageBox("Error: Selected file not open for reading.");
+		}
 	}
 	else {
-		wxMessageBox("Error: Selected file not open for reading.");
+		imgFile = myIMGFile(filepath.GetFullPath());
+		loadIMG();
 	}
+
+	
 }
 
 myPanel::~myPanel()
@@ -77,127 +86,49 @@ void myPanel::loadBMP() {
 
 	// Copy from bmp file to panel image
 	while (fileRow != bmpFile.getPixelVector()->end()) {
+		fileCol = fileRow->begin(); //TODO: just added, check for bug?
 		while (fileCol != fileRow->end()) {
-			wxColor temp = *fileCol;
-			*panelCol = temp;
+			*panelCol = *fileCol;
 			fileCol++, panelCol++;
 		}
 		fileRow++, panelRow++;
 	}
 }
 
-// Take a wxColor RGB value and produces HSL values
-// Calculation explained in report
-void myPanel::RGBtoHSL(wxColor rgb, double& H, double& S, double& L)
-{
-	double Rf = double(rgb.Red()) / 255;
-	double Gf = double(rgb.Green()) / 255;
-	double Bf = double(rgb.Blue()) / 255;
-	double Cmax = max(Rf, max(Gf, Bf));
-	double Cmin = min(Rf, min(Gf, Bf));
-	double delta = Cmax - Cmin;
-	L = (Cmax + Cmin) / 2;
+void myPanel::loadIMG() {
+	maxSize = imgFile.getSize();
+	maxWidth = maxSize.GetWidth();
+	maxHeight = maxSize.GetHeight();
+	SetSize(maxSize);
+	vector<wxColor> width = vector<wxColor>(imgFile.getSize().GetWidth());
+	image = vector<vector<wxColor>>(imgFile.getSize().GetHeight(), width);
 
-	if (delta == 0) {
-		H = 0;
-		S = 0;
+	// Iterators for panel image pixels
+	vector<vector<wxColor>>::iterator panelRow = image.begin();
+	vector<wxColor>::iterator panelCol;
+	// Iterators for IMG file pixels
+	vector<vector<colSpace>> imgVector = imgFile.getPixelVector();
+	vector<vector<colSpace>>::const_iterator imageRow = imgVector.begin();
+	vector<colSpace>::const_iterator imageCol;
+	int index = 0;
+	while (imageRow != imgVector.end()) {
+		panelCol = panelRow->begin();
+		imageCol = imageRow->begin();
+		while (imageCol != imageRow->end()) { // *panelCol bugs out at second row.
+			*panelCol = YCoCgtoRGB(*imageCol);
+			panelCol++, imageCol++;
+			index++;
+		}
+		panelRow++, imageRow++;
 	}
-	else {
-		if (L < 0.5) {
-			S = (Cmax - Cmin) / (Cmax + Cmin);
-		}
-		else {
-			S = (Cmax - Cmin) / (2.0 - Cmax - Cmin);
-		}
-		if (Cmax == Rf) {
-			H = (Gf - Bf) / (Cmax - Cmin);
-		}
-		else if (Cmax == Gf) {
-			H = 2.0 + (Bf - Rf) / (Cmax - Cmin);
-		}
-		else {
-			H = 4.0 + (Rf - Gf) / (Cmax - Cmin);
-		}
-	}
-	H *= 60;
-	if (H < 0) { H += 360; }
-	return;
 }
 
-// Take an HSL value and convert to wxColor RGB value
-// Calculation explained in report
-void myPanel::HSLtoRGB(wxColor& rgb, double H, double S, double L)
+wxColor myPanel::YCoCgtoRGB(colSpace yCoCg)
 {
-	double temp1;
-	double temp2;
-	double Rf, Gf, Bf;
-	int R, G, B;
-	if (S == 0) {
-		int mono = round(L * 255);
-		R = mono;
-		G = mono;
-		B = mono;
-		
-	}
-	else {
-		temp1 = (L < 0.5 ? L * (S + 1.0) : L + S - (L * S));
-		temp2 = 2 * L - temp1;
-		H /= 360;
-		Rf = H + 0.333;
-		Gf = H;
-		Bf = H - 0.333;
-		if (Rf < 0) { Rf += 1; }
-		if (Rf > 1) { Rf -= 1; }
-		if (Gf < 0) { Gf += 1; }
-		if (Gf > 1) { Gf -= 1; }
-		if (Bf < 0) { Bf += 1; }
-		if (Bf > 1) { Bf -= 1; }
-
-		if ((Rf * 6) < 1) {
-			Rf = temp2 + (temp1 - temp2) * 6 * Rf;
-		}
-		else if ((Rf * 2) < 1) {
-			Rf = temp1;
-		}
-		else if ((3 * Rf) < 2 ) { 
-			Rf = temp2 + (temp1 - temp2) * (0.666 - Rf) * 6;
-		}
-		else {
-			Rf = temp2;
-		}
-
-		if ((Gf * 6) < 1) {
-			Gf = temp2 + (temp1 - temp2) * 6 * Gf;
-		}
-		else if ((Gf * 2) < 1) {
-			Gf = temp1;
-		}
-		else if ((3 * Gf) < 2) {
-			Gf = temp2 + (temp1 - temp2) * (0.666 - Gf) * 6;
-		}
-		else {
-			Gf = temp2;
-		}
-
-		if ((Bf * 6) < 1) {
-			Bf = temp2 + (temp1 - temp2) * 6 * Bf;
-		}
-		else if ((Bf * 2) < 1) {
-			Bf = temp1;
-		}
-		else if ((3 * Bf) < 2) {
-			Bf = temp2 + (temp1 - temp2) * (0.666 - Bf) * 6;
-		}
-		else {
-			Bf = temp2;
-		}
-
-		R = round(Rf * 255);
-		G = round(Gf * 255);
-		B = round(Bf * 255);
-	}
-	rgb = wxColor(R, G, B);
-	return;
+	double R = double(yCoCg.Y) + yCoCg.Co - yCoCg.Cg;
+	double G = double(yCoCg.Y) + yCoCg.Cg;
+	double B = double(yCoCg.Y) - yCoCg.Co - yCoCg.Cg;
+	return wxColor(R, G, B);
 }
 
 // Return pixel vector RGB element at index

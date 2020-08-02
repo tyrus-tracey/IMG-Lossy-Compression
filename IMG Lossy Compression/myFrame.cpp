@@ -56,7 +56,7 @@ void myFrame::OnOpen(wxCommandEvent& event)
 {
 
 	delete panel; // delete if panel exists
-	wxFileDialog openDialog(this, ("Open a BMP file"), "", "", "BMP files (*.bmp)|*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+	wxFileDialog openDialog(this, ("Open a BMP or IMG file"), "", "", "BMP and IMG files (*.bmp;*.IMG)|*.bmp;*.IMG", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
 	if (openDialog.ShowModal() == wxID_CANCEL) { // If user cancels the dialog
 		wxMessageBox("No file was chosen.");
@@ -64,10 +64,9 @@ void myFrame::OnOpen(wxCommandEvent& event)
 	}
 	// Create a new panel with given BMP file with the frame as the parent
 	wxFileName file = openDialog.GetPath();
-	panel = new myPanel(this, file.GetFullPath()); 
+	panel = new myPanel(this, file.GetFullPath());
 
 	SetClientSize(panel->GetSize());
-	panel->writeIMG(file.GetPathWithSep() + wxString("TEST.IMG")); //ensure file is open?
 
 	Refresh(); //Redraw the frame
 	Update(); //Force painting of BMP immediately
