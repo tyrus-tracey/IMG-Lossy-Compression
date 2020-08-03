@@ -142,24 +142,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BinaryTree.cpp" />
     <ClCompile Include="myApp.cpp" />
     <ClCompile Include="myBMPFile.cpp" />
     <ClCompile Include="myFrame.cpp" />
     <ClCompile Include="myIMGFile.cpp" />
     <ClCompile Include="myPanel.cpp" />
-    <ClCompile Include="Node.cpp" />
-    <ClCompile Include="symbolDistribution.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BinaryTree.h" />
     <ClInclude Include="myApp.h" />
     <ClInclude Include="myBMPFile.h" />
     <ClInclude Include="myFrame.h" />
     <ClInclude Include="myIMGFile.h" />
     <ClInclude Include="myPanel.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="symbolDistribution.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
