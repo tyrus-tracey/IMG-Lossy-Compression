@@ -19,7 +19,10 @@ myPanel::myPanel(wxFrame* parent, const wxFileName filepath)
 				image = *bmpFile.getPixelVector();
 			}
 			imgFile = myIMGFile(bmpFile);
-			writeIMG(filepath.GetPathWithSep() + wxString("TEST.IMG"));
+			writeIMG(filepath.GetPathWithSep() + wxString("OUTPUT.IMG"));
+			parent->SetClientSize(GetSize().GetWidth() * 2, GetSize().GetHeight());
+			IMGPanel = new myPanel(parent, (filepath.GetPathWithSep() + wxString("OUTPUT.IMG")));
+			IMGPanel->SetPosition(wxPoint(GetSize().GetWidth()/2, 0));
 		}
 		else {
 			wxMessageBox("Error: Selected file not open for reading.");
@@ -35,6 +38,7 @@ myPanel::myPanel(wxFrame* parent, const wxFileName filepath)
 
 myPanel::~myPanel()
 {
+
 }
 
 // Resizes panel to the size of the BMP file
@@ -115,6 +119,7 @@ void myPanel::loadIMG() {
 	while (imgRow != imgVector.end()) {
 		panelCol = panelRow->begin();
 		imgCol = imgRow->begin();
+		while(imgCol != imgRow->end()) {
 			*panelCol = YCoCgtoRGB(*imgCol);
 			panelCol++, imgCol++;
 			index++;

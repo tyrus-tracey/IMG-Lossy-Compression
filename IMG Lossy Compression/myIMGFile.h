@@ -9,9 +9,9 @@
 struct colSpace {
 	colSpace();
 	colSpace(wxColor triColor);
-	int Y; 
-	int Co; 
-	int Cg; 
+	short Y; 
+	short Co; 
+	short Cg; 
 };
 
 class myIMGFile
@@ -30,7 +30,6 @@ public:
 private:
 	void readBMP(myBMPFile& bmp);
 	//compression functions
-	void downsampleColor();
 	void quantizePixels();
 	void flattenExtremes();
 	void convertToStrings();
@@ -40,11 +39,10 @@ private:
 	void reconstructPixels();
 
 	wxSize imageSize;
-	int downsampleCount;
 	vector<vector<colSpace>> data;
-	vector<int> dataY;
-	vector<int> dataCo;
-	vector<int> dataCg;
+	vector<int16_t> dataY;
+	vector<int16_t> dataCo;
+	vector<int16_t> dataCg;
 	
 };
 

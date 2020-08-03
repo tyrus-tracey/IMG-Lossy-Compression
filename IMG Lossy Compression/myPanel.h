@@ -18,6 +18,7 @@ public:
 	void paintEvent(wxPaintEvent& event);
 	void drawImage(wxDC& dc);
 	void writeIMG(wxString filepath);
+	myPanel* IMGPanel = nullptr;
 
 private:
 	void loadBMP();

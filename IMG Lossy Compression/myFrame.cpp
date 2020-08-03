@@ -54,8 +54,10 @@ void myFrame::OnExit(wxCommandEvent& event) {
 // If user selects a BMP file, a new panel will be created using that file.
 void myFrame::OnOpen(wxCommandEvent& event)
 {
-
-	delete panel; // delete if panel exists
+	if (panel != nullptr) {
+		delete panel->IMGPanel;
+		delete panel;
+	}
 	wxFileDialog openDialog(this, ("Open a BMP or IMG file"), "", "", "BMP and IMG files (*.bmp;*.IMG)|*.bmp;*.IMG", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
 	if (openDialog.ShowModal() == wxID_CANCEL) { // If user cancels the dialog
