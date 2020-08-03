@@ -37,7 +37,6 @@ int myBMPFile::getPixelCount()
     return imageWidth * imageHeight;
 }
 
-
 vector<vector<wxColor>>* myBMPFile::getPixelVector() const
 {
     return pixelVector;

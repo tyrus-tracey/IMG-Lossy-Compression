@@ -18,6 +18,7 @@ public:
 	void paintEvent(wxPaintEvent& event);
 	void drawImage(wxDC& dc);
 	void writeIMG(wxString filepath);
+	void writePSNR(myPanel* img, wxString filepath);
 	myPanel* IMGPanel = nullptr;
 
 private:
@@ -25,6 +26,9 @@ private:
 	void loadIMG();
 	wxColor YCoCgtoRGB(colSpace yCoCg);
 	wxColor getPixelColor(const int row, const int col) const;
+	const vector<vector<wxColor>>& getPixelVector();
+
+	double PSNR(myPanel* img);
 	myBMPFile bmpFile;
 	myIMGFile imgFile;
 

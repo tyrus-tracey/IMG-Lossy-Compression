@@ -1,4 +1,6 @@
 #include "myPanel.h"
+#include <math.h>
+#include "wx/textfile.h"
 
 //Bind paint events to this panel
 wxBEGIN_EVENT_TABLE(myPanel, wxPanel)
@@ -23,6 +25,7 @@ myPanel::myPanel(wxFrame* parent, const wxFileName filepath)
 			parent->SetClientSize(GetSize().GetWidth() * 2, GetSize().GetHeight());
 			IMGPanel = new myPanel(parent, (filepath.GetPathWithSep() + wxString("OUTPUT.IMG")));
 			IMGPanel->SetPosition(wxPoint(GetSize().GetWidth()/2, 0));
+			writePSNR(IMGPanel, filepath.GetPathWithSep() + wxString("PSNR.txt"));
 		}
 		else {
 			wxMessageBox("Error: Selected file not open for reading.");
@@ -75,6 +78,17 @@ void myPanel::drawImage(wxDC& dc)
 void myPanel::writeIMG(wxString filepath)
 {
 	imgFile.writeToFile(filepath);
+}
+
+void myPanel::writePSNR(myPanel* img, wxString filepath)
+{
+	wxTextFile output;
+	output.Create(filepath);
+	output.Open(filepath);
+	output.AddLine(wxT("PSNR: "));
+	output.AddLine(wxString::Format(wxT("%f"), PSNR(img)));
+	output.Write();
+	output.Close();
 }
 
 
@@ -149,3 +163,46 @@ wxColor myPanel::getPixelColor(const int row, const int col) const {
 	}
 	return image[row][col];
 }
+
+const vector<vector<wxColor>>& myPanel::getPixelVector()
+{
+	return image;
+}
+
+double myPanel::PSNR(myPanel* img)
+{
+	double mseR;
+	double mseG;
+	double mseB;
+	double MSE;
+	unsigned long sumR = 0;
+	unsigned long sumG = 0;
+	unsigned long sumB = 0;
+
+	// Iterators for bmp file pixels
+	vector<vector<wxColor>> imgVec = img->getPixelVector();
+	vector<vector<wxColor>>::const_iterator bmpRow = imgVec.begin();
+	vector<wxColor>::const_iterator bmpCol;
+
+	// Iterators for IMG file pixels
+	vector<vector<wxColor>>::iterator imgRow = image.begin();
+	vector<wxColor>::iterator imgCol;
+
+	while (bmpRow != imgVec.end()) {
+		bmpCol = bmpRow->begin();
+		imgCol = imgRow->begin();
+		while (bmpCol != bmpRow->end()) {
+			sumR += pow(bmpCol->Red()	- imgCol->Red(), 2);
+			sumG += pow(bmpCol->Green() - imgCol->Green(), 2);
+			sumB += pow(bmpCol->Blue()	- imgCol->Blue(), 2);
+			bmpCol++, imgCol++;
+		}
+		bmpRow++, imgRow++;
+	}
+	mseR = (double(1) / bmpFile.getPixelCount()) * sumR;
+	mseG = (double(1) / bmpFile.getPixelCount()) * sumG;
+	mseB = (double(1) / bmpFile.getPixelCount()) * sumB;
+	MSE = (mseR + mseG + mseB) / 3;
+
+	return ((20 * log10(255)) - (10 * log10(MSE)));
+}	
