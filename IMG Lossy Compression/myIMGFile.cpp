@@ -191,7 +191,6 @@ void myIMGFile::writeToFile(const wxString filepath)
 {
 	wxFFile file(filepath, "wb");
 	int intBuff;
-	short shortBuff;
 	char charBuff[4];
 	charBuff[0] = 'I';
 	charBuff[1] = 'M';
