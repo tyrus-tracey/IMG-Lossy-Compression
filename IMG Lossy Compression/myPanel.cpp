@@ -108,27 +108,33 @@ void myPanel::loadIMG() {
 	vector<wxColor>::iterator panelCol;
 	// Iterators for IMG file pixels
 	vector<vector<colSpace>> imgVector = imgFile.getPixelVector();
-	vector<vector<colSpace>>::const_iterator imageRow = imgVector.begin();
-	vector<colSpace>::const_iterator imageCol;
+	vector<vector<colSpace>>::const_iterator imgRow = imgVector.begin();
+	vector<colSpace>::const_iterator imgCol;
 	int index = 0;
-	while (imageRow != imgVector.end()) {
+	int pixels = maxWidth * maxHeight;
+	while (imgRow != imgVector.end()) {
 		panelCol = panelRow->begin();
-		imageCol = imageRow->begin();
-		while (imageCol != imageRow->end()) { // *panelCol bugs out at second row.
-			*panelCol = YCoCgtoRGB(*imageCol);
-			panelCol++, imageCol++;
+		imgCol = imgRow->begin();
+			*panelCol = YCoCgtoRGB(*imgCol);
+			panelCol++, imgCol++;
 			index++;
 		}
-		panelRow++, imageRow++;
+		panelRow++, imgRow++;
 	}
 }
 
 wxColor myPanel::YCoCgtoRGB(colSpace yCoCg)
 {
-	double R = double(yCoCg.Y) + yCoCg.Co - yCoCg.Cg;
-	double G = double(yCoCg.Y) + yCoCg.Cg;
-	double B = double(yCoCg.Y) - yCoCg.Co - yCoCg.Cg;
-	return wxColor(R, G, B);
+	double temp;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+
+	temp = double(yCoCg.Y) - (yCoCg.Cg >> 1);
+	g = yCoCg.Cg + temp;
+	b = temp - (yCoCg.Co >> 1);
+	r = b + yCoCg.Co;
+	return wxColor(r, g, b);
 }
 
 // Return pixel vector RGB element at index

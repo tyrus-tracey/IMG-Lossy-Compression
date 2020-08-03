@@ -7,10 +7,11 @@ colSpace::colSpace()
 
 colSpace::colSpace(wxColor triColor)
 {
+	double temp;
 	Co = triColor.Red() - triColor.Blue();
-	int temp = triColor.Blue() + Co / 2;
-	Cg = triColor.Green() - temp;
-	Y = temp + Cg / 2;
+	temp = double(triColor.Blue()) + (Co >> 1);
+	Cg = double(triColor.Green()) - temp;
+	Y = temp + (Cg >> 1);
 }
 
 myIMGFile::myIMGFile()
@@ -34,8 +35,8 @@ myIMGFile::myIMGFile(myBMPFile& bmp)
 	dataCg = vector<int>(bmp.getPixelCount());
 	readBMP(bmp);
 	downsampleColor();
-	quantizePixels();
-	flattenExtremes();
+	//quantizePixels();
+	//flattenExtremes();
 	convertToStrings();
 }
 
@@ -60,24 +61,23 @@ void myIMGFile::readFromFile(const wxString filepath)
 	downsampleCount = intBuff;
 
 	dataY.resize(imageSize.GetWidth() * imageSize.GetHeight());
-	dataCo.resize(downsampleCount);
-	dataCg.resize(downsampleCount);
-
-	for (int i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
+	dataCo.resize(downsampleCount); 
+	dataCg.resize(downsampleCount); 
+	int i;
+	for (i = 0; i < imageSize.GetWidth() * imageSize.GetHeight(); i++) {
 		file.Read(&intBuff, sizeof(int));
 		dataY[i] = intBuff;
 	}
 
-	for (int i = 0; i < downsampleCount; i++) {
+	for (i = 0; i < downsampleCount; i++) { 
 		file.Read(&intBuff, sizeof(int));
 		dataCo[i] = intBuff;
 	}
 
-	for (int i = 0; i < downsampleCount; i++) {
+	for (i = 0; i < downsampleCount; i++) { 
 		file.Read(&intBuff, sizeof(int));
 		dataCg[i] = intBuff;
 	}
-
 	file.Close();
 }
 
@@ -85,7 +85,9 @@ void myIMGFile::readBMP(myBMPFile& bmp)
 {
 	vector<colSpace> width(imageSize.GetX());
 	data = vector<vector<colSpace>>(imageSize.GetY(), width);
-
+	int pixels = imageSize.GetHeight() * imageSize.GetWidth();
+	pixels -= 20;
+	int count = 0;
 	row = data.begin();
 	bmp.row = bmp.getPixelVector()->begin();
 	while (row != data.end()) {
@@ -94,6 +96,7 @@ void myIMGFile::readBMP(myBMPFile& bmp)
 		while (col != row->end()) {
 			*col = colSpace(*bmp.col);
 			col++, bmp.col++;
+			count++;
 		}
 		row++, bmp.row++;
 	}
@@ -119,7 +122,7 @@ void myIMGFile::downsampleColor()
 			avg.Cg = data[y1][x1].Cg + data[y2][x1].Cg + data[y1][x2].Cg + data[y2][2].Cg;
 			// divide by 4
 			avg.Co / 4, avg.Cg / 4;
-
+			
 			data[y1][x1].Co = avg.Co;  
 			data[y2][x1].Co = avg.Co;
 			data[y1][x2].Co = avg.Co;
@@ -129,6 +132,7 @@ void myIMGFile::downsampleColor()
 			data[y2][x1].Cg = avg.Cg;
 			data[y1][x2].Cg = avg.Cg;
 			data[y2][x2].Cg = avg.Cg;
+			
 			count++;
 		}
 	}
@@ -196,17 +200,17 @@ void myIMGFile::convertToStrings()
 		}
 		row++;
 	}
-
 	index = 0;
-	for (int x1 = 0; x1 < imageSize.GetWidth() - 1; x1 += 2) {
+	for (int x1 = 0; x1 < imageSize.GetWidth() - 1; x1 += 2) { 
 		for (int y1 = 0; y1 < imageSize.GetHeight() - 1; y1 += 2) {
 			dataCo[index] = data[y1][x1].Co;
 			dataCg[index] = data[y1][x1].Cg;
 			index++;
 		}
 	}
-	dataCo.resize(index);
-	dataCg.resize(index);
+	
+	dataCo.resize(index); 
+	dataCg.resize(index); 
 }
 
 // Huffman-based encoding of pixel values
@@ -250,6 +254,7 @@ void myIMGFile::reconstructPixels()
 			data[y2][x1].Cg = dataCg[index];
 			data[y1][x2].Cg = dataCg[index];
 			data[y2][x2].Cg = dataCg[index];
+			index++;
 		}
 	}
 }
@@ -282,12 +287,12 @@ void myIMGFile::writeToFile(const wxString filepath)
 		file.Write(&intBuff, sizeof(int));
 	}
 
-	for (int i = 0; i < downsampleCount; i++) {
+	for (int i = 0; i < downsampleCount; i++) { 
 		intBuff = dataCo[i];
 		file.Write(&intBuff, sizeof(int));
 	}
 
-	for (int i = 0; i < downsampleCount; i++) {
+	for (int i = 0; i < downsampleCount; i++) { 
 		intBuff = dataCg[i];
 		file.Write(&intBuff, sizeof(int));
 	}

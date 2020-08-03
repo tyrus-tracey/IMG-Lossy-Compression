@@ -45,11 +45,6 @@ private:
 	vector<int> dataY;
 	vector<int> dataCo;
 	vector<int> dataCg;
-	/*
-	vector<string> dataY;
-	vector<string> dataCo;
-	vector<string> dataCg;
-	*/
 	
 };
 
