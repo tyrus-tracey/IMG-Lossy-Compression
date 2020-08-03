@@ -5,6 +5,7 @@
 #include "wx/filename.h"
 #include "myBMPFile.h"
 #include "myIMGFile.h"
+
 /*
 	Panels are windows within frames that allow for drawing operations.
 */
