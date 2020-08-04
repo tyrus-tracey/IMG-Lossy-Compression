@@ -1,4 +1,4 @@
-#include "myIMGFile.h"
+ #include "myIMGFile.h"
 
 colSpace::colSpace()
 	: Y(0), Co(0), Cg(0)

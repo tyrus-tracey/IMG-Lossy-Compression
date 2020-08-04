@@ -21,9 +21,9 @@ myPanel::myPanel(wxFrame* parent, const wxFileName filepath)
 				image = *bmpFile.getPixelVector();
 			}
 			imgFile = myIMGFile(bmpFile);
-			writeIMG(filepath.GetPathWithSep() + wxString("OUTPUT.IMG"));
+			writeIMG(filepath.StripExtension(filepath.GetFullPath()) + wxString(".IMG"));
 			parent->SetClientSize(GetSize().GetWidth() * 2, GetSize().GetHeight());
-			IMGPanel = new myPanel(parent, (filepath.GetPathWithSep() + wxString("OUTPUT.IMG")));
+			IMGPanel = new myPanel(parent, filepath.StripExtension(filepath.GetFullPath()) + wxString(".IMG"));
 			IMGPanel->SetPosition(wxPoint(GetSize().GetWidth()/2, 0));
 			writePSNR(IMGPanel, filepath.GetPathWithSep() + wxString("PSNR.txt"));
 		}
